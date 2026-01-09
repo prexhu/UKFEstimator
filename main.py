@@ -18,11 +18,11 @@ truth = generate_truth(T, dt)
 sensor1 = np.array([150, 600])
 sensor2 = np.array([200, 100])
 
-# Noise: Sensor 1 is better at range, Sensor 2 is better at bearing (hypothetically)
+# Sendor noise 
 R1 = np.diag([2.0**2, (2.0*np.pi/180)**2])
 R2 = np.diag([5.0**2, (0.5*np.pi/180)**2])
 
-# Adding noise 
+#  noise 
 q_val = 2.0 
 Q = q_val * np.array([
     [dt**3/3, 0, dt**2/2, 0],
