@@ -1,16 +1,29 @@
 import numpy as np
-
 def generate_truth(T, dt):
-    # Generates a complex trajectory with multiple maneuvers
+    """
+    Generates a complex trajectory with multiple maneuvers
+    Parameters
+    ----------
+    T : int
+        Number of time steps
+    dt : float
+        Time step size
+
+    Returns
+    -------
+    x : ndarray, shape (T, 4)
+        Ground truth trajectory with position and velocity components.
+    """
     x = np.zeros((T, 4))
     x[0] = [0, 0, 5, 2] # Initial pos and vel
     
     # Define trajectory phases: (duration, turn_rate, acceleration)
+    # TODO: generate more complex curves form config file (yaml config)
     phases = [
         (200, 0.0, 0.0),    # Straight
-        (150, 0.05, 0.0),   # Left turn
-        (100, 0.0, 0.1),    # Acceleration
-        (200, -0.04, 0.0),  # Right turn
+        (150, 0.1, 0.0),   # Left turn
+        (100, 0.0, 0.5),    # Acceleration
+        (200, -0.08, 0.0),  # Right turn
         (150, 0.08, -0.05), # Sharp left + deceleration
         (200, 0.0, 0.0)     # Final straight
     ]
@@ -18,13 +31,13 @@ def generate_truth(T, dt):
     k = 1
     for duration, omega, acc in phases:
         for _ in range(duration):
-            if k >= T: break
-            
+            if k >= T: 
+                break
             vx, vy = x[k-1, 2], x[k-1, 3]
             v = np.sqrt(vx**2 + vy**2)
             heading = np.arctan2(vy, vx)
             
-            # Apply maneuvers
+            # Apply acc and turn rate
             new_v = v + acc * dt
             new_heading = heading + omega * dt
             
@@ -37,6 +50,21 @@ def generate_truth(T, dt):
     return x[:T]
 
 def generate_measurements(x, sensor_pos, R):
+    """
+    Simulates radar measurements (range and bearing) with noise.
+    Parameters
+    ----------
+    x : ndarray, shape (T, 4)
+        Ground truth trajectory with position and velocity components.
+    sensor_pos : ndarray, shape (2,)
+        Sensor position in Cartesian coordinates.
+    R : ndarray, shape (2, 2)
+        Measurement noise covariance matrix.
+    Returns
+    -------
+    z : ndarray, shape (T, 2)
+        Simulated radar measurements.
+    """
     z = []
     for xi in x:
         dx = xi[0] - sensor_pos[0]

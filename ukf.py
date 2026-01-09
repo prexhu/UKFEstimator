@@ -76,7 +76,6 @@ class UKF:
             dz[1] = np.arctan2(np.sin(dz[1]), np.cos(dz[1]))
             Pxz += self.Wc[i] * np.outer(dx, dz)
 
-        # Use pseudo-inverse for numerical robustness
         K = Pxz @ np.linalg.pinv(S)
 
         dz = z - z_pred
